@@ -13,18 +13,18 @@ class ServeOnce(SimpleHTTPRequestHandler):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("script", type=str, help="File to serve")
+    parser.add_argument("script", nargs='?', type=str, help="File to serve")
     parser.add_argument("--port", type=int, help="Port to use")
-
     args = parser.parse_args()
-    if not args.script:
-        print("Missing script")
-        sys.exit(1)
 
     port = args.port if args.port else 8080
-    script = ""
-    with open(args.script, "r") as fp:
-        script = fp.readlines()
+    script = []
+    if args.script:
+        with open(args.script, "r") as fp:
+            script = fp.readlines()
+    else:
+        for line in sys.stdin:
+            script.append(line.rstrip())
 
     with socketserver.TCPServer(("", port), ServeOnce) as httpd:
         ServeOnce._expected = "\n".join(script)
