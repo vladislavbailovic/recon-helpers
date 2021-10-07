@@ -8,7 +8,7 @@ class ServeOnce(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/plain")
         self.end_headers()
-        self.wfile.write(ServeOnce._expected.encode("utf-8"))
+        self.wfile.write(self.server._expected.encode("utf-8"))
         sys.exit()
 
 def main():
@@ -27,7 +27,7 @@ def main():
             script.append(line.rstrip())
 
     with socketserver.TCPServer(("", port), ServeOnce) as httpd:
-        ServeOnce._expected = "\n".join(script)
+        httpd._expected = "\n".join(script)
         httpd.serve_forever()
 
 if __name__ == "__main__":
