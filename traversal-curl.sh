@@ -23,14 +23,18 @@ prefix=""
 for i in $(seq 1 "$DEPTH"); do
 	[ -z "$prefix" ] && cmd=$RFILE || cmd=${RFILE:1}
 	(
-		RHOST="${RHOST}/${prefix}${cmd}"
-		res=$( curl -I $CURLOPT "$RHOST" 2>/dev/null )
+		REQUEST="${RHOST}/${prefix}${cmd}"
+		res=$( curl -I $CURLOPT "$REQUEST" 2>/dev/null )
+		if [ -z "$res" ]; then
+			echo "Error requesting $RHOST (${REQUEST})"
+			exit 1
+		fi
 		result=$( echo "$res" | grep '^HTTP' | tr -d '\n\r' )
 		if $( echo "$result" | grep -q "30[1,2]" ); then
 			location=$( echo "$res" | grep -i "location: " | tr -d '\n\r' )
 			result="${result} | ${location}"
 		fi
-		[ -z "$result" ] || echo "${RHOST} | ${result}"
+		[ -z "$result" ] || echo "${REQUEST} | ${result}"
 	)&
 	prefix="${prefix}../"
 done
