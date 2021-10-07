@@ -1,8 +1,11 @@
+declare -a CLIFLAGS=( $@ )
+
 declare -A FLAGBOOLS
 declare -A FLAGDFLTS
 declare -A FLAGDESCS
 
-function flag-set() {
+function accept-flag() {
+	var=$1; shift
 	flag=$1; shift
 	[ "$1" == "BOOL" ] && bool="yes" || bool=$1; shift
 	default=$1; shift
@@ -10,9 +13,11 @@ function flag-set() {
 	FLAGBOOLS[$flag]=$bool
 	FLAGDFLTS[$flag]=$default
 	FLAGDESCS[$flag]="$desc"
+	value=$( get-flag $flag ${CLIFLAGS[@]} )
+	export ${var}="$value"
 }
 
-function flag-get() {
+function get-flag() {
 	which=$1; shift
 	found=0
 	while [ $1 ]; do

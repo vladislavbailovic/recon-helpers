@@ -2,19 +2,16 @@
 
 source _flags.sh
 
-flag-set "-url" STRING "" "target url"
-flag-set "-depth" INT "5" "file path depth"
-flag-set "-rfile" STRING "/etc/passwd" "remote file to check"
-flag-set "-range" BOOL "" "use range header"
-flag-set "-help" BOOL "" "usage info"
-RHOST=$(flag-get "-url" "$@")
-DEPTH=$(flag-get "-depth" "$@")
-RFILE=$(flag-get "-rfile" "$@")
+accept-flag RHOST "-url" STRING "" "target url"
+accept-flag DEPTH "-depth" INT "5" "file path depth"
+accept-flag RFILE "-rfile" STRING "/etc/passwd" "remote file to check"
+accept-flag RRANGE "-range" BOOL "" "use range header"
+accept-flag HELP "-help" BOOL "" "usage info"
 CURLOPT=$(flag-rest "$@" )
-if [ "yes" == "$( flag-get "-range" "$@" )" ]; then
+if [ "yes" == "$RRANGE" ]; then
 	CURLOPT="$CURLOPT -H 'Range: bytes=0-4096'"
 fi
-if [ "yes" == "$( flag-get "-help" "$@" )" ] || [ -z "$RHOST" ]; then
+if [ "yes" == "$HELP" ] || [ -z "$RHOST" ]; then
 	usage "... the rest will be passed to curl directly.\nURL parameter is mandatory"
 	exit
 fi
